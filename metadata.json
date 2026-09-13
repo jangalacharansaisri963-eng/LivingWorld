@@ -1,0 +1,6 @@
+{
+  "name": "Living World V2",
+  "description": "Advanced living-world simulation and group intelligence system for Minecraft 1.21.1 Fabric mobs featuring collective perception, shared memory, group decisions, leadership, and adaptive behavioral coordination.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,108 +1,55 @@
-# Living World — Minecraft Java Edition Mod
+# Living World V2 — Minecraft 1.21.1 Fabric Mod
 
-**Living World** is a production-quality Minecraft Java Edition mod built on the **Fabric** toolchain. Its primary goal is to make Minecraft feel like a living world that remembers events, reacts to players, develops changing behaviors, and produces believable emergent situations — enhancing vanilla Minecraft rather than replacing it.
+Living World V2 transforms Minecraft mobs into an advanced living-world simulation featuring collective perception, shared memory, group decisions, pack leadership, and adaptive behavioral coordination on top of vanilla Minecraft mob AI.
 
----
-
-## Technical Specifications
-
-- **Target Minecraft Version**: `1.21.1`
-- **Mod Loader**: `Fabric` (Loader `>=0.16.10`)
-- **Fabric API**: `0.107.0+1.21.1`
-- **Build System & Loom**: `Fabric Loom 1.8.11` / `Gradle 8.10.2`
-- **Java Version**: `Java 21` (Source & Target compatibility 21, toolchain release 21)
-- **Mappings**: Mojang Official Mappings (`mappings loom.officialMojangMappings()`)
-
----
-
-## Mod Identity
-
-- **Mod Name**: Living World
+## Target Platform
+- **Minecraft Java Edition**: `1.21.1`
+- **Mod Loader**: Fabric Loader `>=0.16.0`
+- **Fabric API**: `0.106.1+1.21.1`
+- **Java**: `21`
 - **Mod ID**: `livingworld`
-- **Root Package**: `com.livingworld`
-- **License**: MIT
+- **Base Package**: `com.livingworld`
 
 ---
 
-## Architecture & Subsystems
-
+## V2 Intelligence Pipeline (8 Stages)
 ```
-src/main/java/com/livingworld/
-├── LivingWorld.java                 # Main Fabric ModInitializer and lifecycle wiring
-├── behavior/
-│   ├── MobReactionHandler.java      # Tactical responses to health, memories & traits
-│   └── ReactionType.java            # Reaction taxonomy (FLEE, INVESTIGATE, PURSUE, etc.)
-├── command/
-│   └── LivingWorldCommands.java     # In-game Brigadier commands (/livingworld ...)
-├── config/
-│   └── ModConfig.java               # Config manager for config/livingworld.json
-├── debug/
-│   └── DebugLogger.java             # Config-gated diagnostic logger
-├── ecology/
-│   └── EcologyManager.java          # Wildlife weather shelter & grazing behaviors
-├── event/
-│   ├── EventType.java               # Emergent situation categories
-│   ├── LivingWorldEvent.java        # Localized active event instance
-│   └── WorldEventManager.java       # Cooldown-guarded event scheduler
-├── group/
-│   └── GroupBehaviorManager.java    # Localized ally alert and group dynamics
-├── memory/
-│   ├── MemoryEntry.java             # Individual decayed memory unit with intensity
-│   ├── MemoryType.java              # Taxonomy (THREAT, DAMAGE, PLAYER_POS, ALLY_ALERT)
-│   ├── MobMemory.java               # Per-mob bounded memory container
-│   └── MobMemoryManager.java        # Server-wide registry with LRU bounds
-├── reputation/
-│   ├── PlayerReputationRecord.java  # Player karma score and action counter
-│   ├── PlayerReputationData.java    # SavedData & Codec persistence for player karma
-│   └── PlayerReputationManager.java # Karma modifier on kills, defenses and raids
-├── traits/
-│   ├── MobTrait.java                # SKITTISH, AGGRESSIVE, GUARDIAN, CURIOUS, STOIC
-│   └── MobPersonalityManager.java   # Deterministic trait assigner based on UUID
-├── util/
-│   └── SpatialMath.java             # Fast squared distance & proximity checks
-├── village/
-│   ├── VillageSafetyManager.java    # Village threat tracker & golem alerting
-│   └── VillageState.java            # PEACEFUL, ALERT, DEFENSIVE, COMPROMISED
-└── world/
-    ├── WorldEventRecord.java        # Serializable historical event record
-    ├── WorldMemoryData.java         # SavedDataType & Codec persistence (SAVE/LOAD)
-    └── WorldMemoryManager.java      # Historical world event coordinator
+Perception ➔ Memory ➔ Group Coordination ➔ Evaluation ➔ Decision ➔ Reaction ➔ Learning ➔ Adaptation
 ```
 
----
-
-## Key Features
-
-1. **Short-Term Mob Memory & Trauma Decay**:
-   - Entities form individual memory records when damaged or when spotting threats.
-   - Memories retain location, intensity, and decay progressively over 60 seconds (configurable).
-2. **Individual Mob Traits & Personalities**:
-   - Mobs possess innate personalities (`SKITTISH`, `AGGRESSIVE`, `GUARDIAN`, `CURIOUS`, `STOIC`).
-   - Traits influence fleeing thresholds, pursuit vigor, and assist ranges.
-3. **Group Dynamics & Ally Alerts**:
-   - When attacked, mobs broadcast panic/distress signals to nearby kindred within 16 blocks.
-   - Throttled alerting prevents cascade storms.
-4. **Dynamic Village Vigilance & Iron Golem Mobilization**:
-   - Villages maintain dynamic safety states: `PEACEFUL`, `ALERT`, `DEFENSIVE`, `COMPROMISED`.
-   - Iron Golems actively dispatch to reported breach positions.
-5. **Player Karma & Regional Reputation**:
-   - Defending villagers and slaying hostiles earns karma ("Hero of the Realm", "Trusted Friend").
-   - Slaughtering villagers or peaceful wildlife incurs severe karma penalties ("Feared Outlaw", "Notorious Marauder").
-   - Saved across server restarts using Minecraft 1.21.1 `SavedData.Factory` and `CompoundTag` NBT storage.
-6. **Wildlife Ecology & Weather Sensitivity**:
-   - Animals detect rain and thunderstorms and actively seek tree canopies and overhangs.
-7. **In-Game Brigadier Commands**:
-   - `/livingworld status`: Check active tracked memories and emergent world situations.
-   - `/livingworld reputation`: Inspect your karma level and titles.
-   - `/livingworld events`: Browse historical battles and notable world events.
+1. **Perception**: Bounded sensory scans gathering nearby players, hostiles, allies, food items, and local hazards.
+2. **Memory System**: Bounded, priority-aware memory bank with retention weighting, reinforcement, decay, and group assimilation.
+   - Categories: `DANGER`, `PLAYER`, `FOOD`, `SHELTER`, `LOCATION`, `GENERAL_EXPERIENCE`, `ENVIRONMENTAL_EVENT`, `ACTION_OUTCOME`, `GROUP_EXPERIENCE`.
+3. **Group Intelligence (V2)**:
+   - Dynamic pack/herd formation, cohesion thresholds (16m), and centroid tracking.
+   - Role allocation: `LEADER`, `DEFENDER`, `SCOUT`, `FOLLOWER`, `SENTINEL`.
+   - Signal broadcasting: `DANGER_ALERT`, `FOOD_SPOTTED`, `SHELTER_FOUND`, `RETREAT_ORDER`, `DEFEND_CALL`, `FOLLOW_LEADER`.
+   - Shared memory bank and collective consensus generation (`DEFEND`, `FLEE`, `SEARCH_FOOD`, `SEEK_SHELTER`, `REGROUP`, `REMAIN_TOGETHER`).
+4. **Behavior Evaluation (12 States)**: Rule-based evaluation engine outputting explainable behavioral states:
+   - `CALM`, `ALERT`, `CURIOUS`, `INVESTIGATE`, `FLEE`, `DEFEND`, `SEEK_SHELTER`, `SEARCH_FOOD`, `FOLLOW`, `AVOID`, `RETURN`, `EXPLORE`.
+5. **Reactions**: Injected `LivingWorldBehaviorGoal` utilizing authentic Minecraft pathfinding, formation maintenance, and look controls.
+6. **Environmental Awareness**: Ambient tracking of biomes, day/night cycle, rainfall, thunderstorms, light levels, and roof shelter scores.
+7. **Learning**: Deterministic rule-based outcomes from damage taken, pack alerts, successful retreats, food discoveries, and player interactions.
+8. **Adaptation**: Shifts in 7 individual mob traits (`fearfulness`, `curiosity`, `trustfulness`, `aggressiveness`, `shelterAffinity`, `sociability`, `cautiousness`).
+9. **Persistence**: Minecraft 1.21.1 `readCustomDataFromNbt` / `writeCustomDataToNbt` for entities (including `GroupId`), and `PersistentState` with `RegistryWrapper.WrapperLookup` for world-level group registries and knowledge.
 
 ---
 
-## Building
-
+## In-Game Fabric Commands
 ```bash
-# Build mod JAR with Gradle and Java 21
+/livingworld inspect          # Inspect nearest mob's state, memories, group role & personality
+/livingworld groups           # List all active packs/herds, leaders, centroids, and group decisions
+/livingworld debug <true|false>  # Toggle verbose diagnostic logging in server console
+/livingworld clearmemories    # Wipe memories for nearby test mobs
+```
+
+---
+
+## Building the Mod Jar
+To compile and package the Fabric mod with Java 21:
+```bash
 ./gradlew build
 ```
-Artifacts are generated in `build/libs/`.
-# LivingWorld
+The output `.jar` will be generated in `build/libs/livingworld-2.0.0.jar`.
+Place the jar in your `.minecraft/mods/` folder alongside Fabric API 1.21.1.
+

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "livingworld",
+  "version": "${version}",
+  "name": "Living World V2",
+  "description": "Advanced living-world simulation and group intelligence system on top of vanilla Minecraft mob AI.",
+  "authors": [
+    "LivingWorld Team"
+  ],
+  "contact": {
+    "homepage": "https://github.com/livingworld/livingworld"
+  },
+  "license": "Apache-2.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.livingworld.LivingWorldMod"
+    ]
+  },
+  "mixins": [
+    "livingworld.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
